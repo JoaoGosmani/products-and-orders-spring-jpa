@@ -12,6 +12,7 @@ import br.com.joaogosmani.productsandorders.entities.User;
 import br.com.joaogosmani.productsandorders.repositories.UserRepository;
 import br.com.joaogosmani.productsandorders.services.exceptions.DatabaseException;
 import br.com.joaogosmani.productsandorders.services.exceptions.ResourceNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class UserService {
@@ -43,9 +44,13 @@ public class UserService {
 	}
 	
 	public User update(Long id, User user) {
-		User entity = findById(id);
-		updateData(entity, user);
-		return repository.save(entity);
+		try {
+			User entity = findById(id);
+			updateData(entity, user);
+			return repository.save(entity);			
+		} catch (EntityNotFoundException exception) {
+			throw new ResourceNotFoundException(id);
+		}
 	}
 
 	private void updateData(User entity, User user) {
